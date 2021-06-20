@@ -1,9 +1,11 @@
-import React from "react"
-import Header from "./header"
+import React from "react";
+import Header from "./header";
+import Content from "./bodyContent";
 function App() {
   return (
     <div className="homepage">
-      <Header className="App-header"/>
+      <Header />
+      <Content />
     </div>
   );
 }

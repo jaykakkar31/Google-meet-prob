@@ -1,11 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap");
 
 .homepage {
   display: flex;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
-  width: 100%;
+  /* width: 100%; */
   justify-content: space-between;
   padding: 20px;
 }
@@ -31,7 +33,129 @@
   color: #5f6368;
 }
 
-.header .action-icons .icon-block .MuiSvgIcon-root{
- padding: 5px;
- font-size: 25px;
+.header .action-icons .icon-block .MuiSvgIcon-root {
+  padding: 5px;
+  font-size: 25px;
+}
+
+.body-content {
+  display: flex;
+  flex: 1 1;
+
+  justify-content: space-around;
+  align-items: center;
+}
+.body-content .left-side {
+  width: 500px;
+  margin-top: 60px;
+}
+
+.body-content .left-side h2 {
+  font-size: 44px;
+  line-height: 1.4;
+  font-weight: 400;
+  margin-top: 15px;
+  margin-bottom: 15px;
+
+  font-family: "Roboto", sans-serif;
+}
+.body-content .left-side p {
+  font-size: 18px;
+  font-weight: 300;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  line-height: 1.5;
+}
+
+.body-content .left-side .action-btn {
+  margin-top: 60px;
+  display: flex;
+}
+.body-content .left-side .action-btn .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  font-size: 16px;
+  background-color: #00796b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+.body-content .left-side .action-btn .btn .MuiSvgIcon-root {
+  padding-right: 5px;
+}
+.body-content .left-side .input-block {
+  display: flex;
+  flex: 1 1;
+  margin-left: 20px;
+}
+
+.body-content .left-side .action-btn .input-block input {
+  padding-left: 38px;
+  height: 50px;
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+
+  /* height: 48px; */
+}
+.body-content .left-side .action-btn .input-block .input-section {
+  display: flex;
+  position: relative;
+  align-items: center;
+  color: #5f6368;
+  margin-right: 10px;
+}
+.body-content
+  .left-side
+  .action-btn
+  .input-block
+  .input-section
+  .MuiSvgIcon-root {
+  position: absolute;
+  top: 50%;
+  transform: translate(10px, -50%);
+}
+.body-content .left-side .action-btn .join-btn {
+  border: none;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  font-size: 16px;
+  color: #00796b;
+  cursor: pointer;
+}
+
+.body-content .left-side .footer .green {
+  color: #00796b;
+  cursor: pointer;
+  text-decoration-line: none;
+}
+.body-content .left-side .footer {
+  margin-top: 30px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  padding-top: 25px;
+  border-top: 1px solid #ddd;
+}
+.right-side{
+  width: 50%;
+}
+.right-side .content {
+  width: 100%;
+  max-width: 650px;
+  border: 1px solid #eee;
+  padding: 30px;
+}
+.right-side .content img{
+  width: 100%;
+  border-radius: 5px;
 }
