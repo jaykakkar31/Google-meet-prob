@@ -1,0 +1,450 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap");
+
+/* Homepage */
+.homepage {
+  display: flex;
+  flex-direction: column;
+}
+
+.homepage .header {
+  display: flex;
+  /* width: 100%; */
+  justify-content: space-between;
+  padding: 20px;
+}
+.header .logo {
+  display: flex;
+  align-items: center;
+}
+.header .logo img {
+  width: 124px;
+}
+.header .logo span {
+  font-size: 22px;
+  padding-left: 4px;
+  color: #5f6368;
+  font-family: sans-serif;
+}
+
+.header .action-icons {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  padding: 10px;
+  color: #5f6368;
+}
+
+.header .action-icons .icon-block .MuiSvgIcon-root {
+  padding: 5px;
+  font-size: 25px;
+}
+
+.body-content {
+  display: flex;
+  flex: 1 1;
+
+  justify-content: space-around;
+  align-items: center;
+}
+.body-content .left-side {
+  width: 500px;
+  margin-top: 60px;
+}
+
+.body-content .left-side h2 {
+  font-size: 44px;
+  line-height: 1.4;
+  font-weight: 400;
+  margin-top: 15px;
+  margin-bottom: 15px;
+
+  font-family: "Roboto", sans-serif;
+}
+.body-content .left-side p {
+  font-size: 18px;
+  font-weight: 300;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  line-height: 1.5;
+}
+
+.body-content .left-side .action-btn {
+  margin-top: 60px;
+  display: flex;
+}
+.body-content .left-side .action-btn .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  font-size: 16px;
+  background-color: #00796b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+.body-content .left-side .action-btn .btn:hover {
+  background: rgb(12, 100, 78);
+}
+.body-content .left-side .action-btn .btn .MuiSvgIcon-root {
+  padding-right: 5px;
+}
+.body-content .left-side .input-block {
+  display: flex;
+  flex: 1 1;
+  margin-left: 20px;
+}
+
+.body-content .left-side .action-btn .input-block input {
+  padding-left: 38px;
+  height: 50px;
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+
+  /* height: 48px; */
+}
+.body-content .left-side .action-btn .input-block .input-section {
+  display: flex;
+  position: relative;
+  align-items: center;
+  color: #5f6368;
+  margin-right: 10px;
+}
+.body-content
+  .left-side
+  .action-btn
+  .input-block
+  .input-section
+  .MuiSvgIcon-root {
+  position: absolute;
+  top: 50%;
+  transform: translate(10px, -50%);
+}
+.body-content .left-side .action-btn .join-btn {
+  border: none;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  font-size: 16px;
+  color: #00796b;
+  cursor: pointer;
+}
+
+.body-content .left-side .footer .green {
+  color: #00796b;
+  cursor: pointer;
+  text-decoration-line: none;
+}
+
+.body-content .left-side .footer {
+  margin-top: 30px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  padding-top: 25px;
+  border-top: 1px solid #ddd;
+}
+.right-side {
+  width: 50%;
+}
+.right-side .content {
+  width: 100%;
+  max-width: 650px;
+  border: 1px solid #eee;
+  padding: 30px;
+}
+.right-side .content img {
+  width: 100%;
+  border-radius: 5px;
+}
+
+/* No Match page */
+.no-match {
+  display: flex;
+  flex-direction: column;
+}
+.no-match .header {
+  display: flex;
+  /* width: 100%; */
+  justify-content: space-between;
+  padding: 20px;
+}
+.no-match-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+.no-match-content h2 {
+  display: flex;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+}
+.action-btn {
+  display: flex;
+  justify-content: center;
+}
+.action-btn button {
+  text-decoration: none;
+  border: none;
+
+  padding: 15px;
+  background-color: #00796b;
+  font-size: 15px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.action-btn .return-text {
+  text-decoration: none;
+  color: white;
+}
+
+/* styling for the video page */
+
+p {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+h3 {
+  display: block;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+p {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.videoScreen {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.videoScreen .video-container {
+  height: 100vh;
+  width: 100%;
+  object-fit: cover;
+  position: absolute;
+  z-index: -1;
+}
+
+.frame-header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 350px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 0 0 0 10px;
+  overflow: hidden;
+}
+
+.frame-header .header-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  flex: 1 1;
+  border-right: 1px solid whitesmoke;
+  position: relative;
+}
+
+.frmae-header .header-items.date-block {
+  font-size: 22px;
+  color: #5f6368;
+  min-width: 120px;
+  font-weight: 400;
+}
+
+.footer-item {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 90px;
+  background: #fff;
+  z-index: 1;
+}
+
+.footer-item .left-item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 350px;
+}
+.footer-item .left-item .icon-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 30px;
+}
+
+.footer-item .center-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1;
+}
+.footer-item .center-item .icon-block {
+  background: #fff;
+  border: 1px solid #dfdfdf;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10px;
+}
+
+.footer-item .right-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 350px;
+}
+.footer-item .right-item .icon-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  width: 146px;
+  color: #555;
+}
+.footer-item .right-item .icon-block .title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meeting-info-block {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 25px;
+  width: 310px;
+}
+
+.meeting-info-block .meeting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #222;
+}
+
+.meeting-info-block .meeting-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.meeting-info-block .add-people-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #04796a;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  outline: none;
+  border: none;
+  margin-top: 20px;
+}
+
+.meeting-info-block .info-text {
+  color: #222;
+  font-size: 14px;
+}
+
+.meeting-info-block .meet-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f1f3f5;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.meeting-info-block .meet-link span {
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  background: none;
+  flex: 1 1;
+  color: #555;
+}
+
+.meeting-info-block .permission-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meeting-info-block .small-text {
+  font-size: 13px;
+  color: #222;
+}
+
+.meeting-info-block .small-text {
+  font-size: 13px;
+  color: #555;
+}
+
+.add-people-btn .MuiSvgIcon-root {
+  margin-right: 7px;
+  color: white;
+}
+.footer-item .left-item .item-block {
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+.permission-text .MuiSvgIcon-root {
+  margin-right: 7px;
+}
+
+.MuiSvgIcon-root {
+  color: #555;
+}
