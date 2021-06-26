@@ -1,7 +1,17 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import KeyboardIcon from "@material-ui/icons/Keyboard";
 import VideocamIcon from "@material-ui/icons/Videocam";
+const shortid = require("shortid");
 function BodyContent() {
+
+  const history=useHistory()
+
+  const startMeeting=()=>{
+    const meetingId=shortid.generate()
+    history.push(`${meetingId}#init`)
+  }
+
   return (
     <div className="body-content">
       <div className="left-side">
@@ -13,7 +23,7 @@ function BodyContent() {
           </p>
         </div>
         <div className="action-btn">
-          <button className="btn">
+          <button className="btn" onClick={startMeeting}>
             <VideocamIcon />
             New Meeting
           </button>

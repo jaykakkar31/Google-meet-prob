@@ -1,75 +1,144 @@
-import react from "react"
-import PeopleIcon from '@material-ui/icons/People';
-import ChatBubbleSharpIcon from '@material-ui/icons/ChatBubbleSharp';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ClosedCaptionIcon from '@material-ui/icons/ClosedCaption';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import MicIcon from '@material-ui/icons/Mic';
-import CallIcon from '@material-ui/icons/Call';
-import VideocamIcon from '@material-ui/icons/Videocam';
-import CloseIcon from '@material-ui/icons/Close';
-import PersonIcon from '@material-ui/icons/Person';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import SecuritySharpIcon from '@material-ui/icons/SecuritySharp';
+import react, { useState, useEffect, useReducer } from "react";
 
+import { useParams, useHistory } from "react-router-dom";
+import MeetingHeader from "./meetingHeader";
+import MeetingFooter from "./meetingFooter";
+import MeetingInfo from "./meetingInfo";
+import Messenger from "./messenger";
+import Alert from "./alert";
+import Peer from "simple-peer";
+import { getCallId, saveCallId } from "././services/UserService";
+import io from "socket.io-client";
+function VideoPage() {
+  const history = useHistory();
+  //#init
+  console.log(window.location.hash);
+  const socket = io("http://localhost:9000");
+  let alertTimeout = null;
+  const { id } = useParams();
+  console.log(useParams());
+  let peer = null;
+  const isAdmin = window.location.hash === "#init" ? true : false;
+  const url = `${window.location.origin}${window.location.pathname}`;
 
-function VideoPage(){
-    return(
-        <div class="videoScreen">     
-            <video class="video-container" controls></video>
-            <div class="frame-header">
-                <div class="header-items icon-block">
-                    <PeopleIcon/>
-                </div>
-                <div class="header-items icon-block">
-                    <ChatBubbleSharpIcon/>
-                </div>
-                <div class="header-items date-block">
-                    3:10AM
-                </div>
-                <div class="header-items icon-block">
-                    <AccountCircleIcon/>
-                </div>
-            </div>
-            <div class="footer-item">
-                <div class="left-item">
-                    <div class="item-block">Meeting Details<ExpandLessIcon/></div>
-                </div>
-                <div class="center-item">
-                   <div class="icon-block"><MicIcon/></div>
-                   <div class="icon-block"><CallIcon/></div>
-                    <div class="icon-block"><VideocamIcon/></div>
-                </div>
-                <div class="right-item">
-                    <div class="icon-block"><ClosedCaptionIcon/>
-                    <p class="title">Turn on captions</p></div>
-                    <div class="icon-block"><DesktopWindowsIcon/>
-                    <p class="title">Present now</p></div>
-                </div>
-            </div> 
-            <div class="meeting-info-block">
-                <div class="meeting-header">
-                    <h3>Your Meeting's ready</h3>
-                    <CloseIcon/>
-                </div>    
-                <button class="add-people-btn">
-                    <PersonIcon/>
-                     Add others
-                </button>
-                <p class="info-text">Or share this meeting link with others you want in the meeting</p>
-                <div class="meet-link">
-                    <span>http://localhost</span>
-                    <FileCopyIcon/>
-                </div>
-                <div class="permission-text">
-                    <SecuritySharpIcon/>
-                <p class="small-text">People who use this meeting link must get your permission before they can join.</p>
-                </div>
-                <p class="small-text">Joined as akshay@gmail.com</p>
-            </div>  
-        </div>
-    )
+  const [meetingInfoPopUp, setMeetingInfoPopUp] = useState(false);
+  const [isMessenger, setMessenger] = useState(false);
+  const [messageAlert, setMessageAlert] = useState({});
+  const [isAudio, setIsAudio] = useState(true);
+  const [streamObj, setStreamObj] = useState();
+
+  //MESSAGE CHAT
+  const intialState = [];
+  const MessageListReducer = (state, action) => {
+    switch (action.type) {
+      case "addMessage":
+        return [...state, action.payload];
+
+      default:
+        return state;
+    }
+  };
+
+  const [messageList, setMessageList] = useReducer(
+    MessageListReducer,
+    intialState
+  );
+
+  const getRecieverCode = () => {
+    getCallId(id).then((response) => {
+      console.log(response);
+      peer.signal(response.data)
+    });
+  };
+
+  useEffect(() => {
+    //Call every time when page renders
+    if (isAdmin) {
+      setMeetingInfoPopUp(true);
+    }
+    initWebRTC();
+    socket.on("code", (data) => {
+      console.log(data);
+      peer.signal(data);
+    });
+  }, []);
+
+  const initWebRTC = () => {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true,
+      })
+      .then((stream) => {
+        console.log(stream);
+
+        peer = new Peer({
+          initiator: isAdmin,
+          //trickle wait for all the data to send makes it slow
+          trickle: false,
+          stream: stream,
+        });
+
+        if (!isAdmin) {
+          getRecieverCode();
+        }
+
+        peer.on("signal", (data) => {
+          if (isAdmin) {
+            console.log("Id : " + id);
+            let payload = {
+              id: id,
+              signalData: data,
+            };
+            saveCallId(payload).then((response) => {
+              console.log(response);
+            });
+          } else {
+            //Socket event
+            console.log("ENTeR");
+            socket.emit("code", data, (cbdata) => {
+              console.log(data);
+              console.log("code sent");
+            });
+          }
+        });
+
+        peer.on("connect", () => {
+          console.log("peer connected");
+        });
+
+        peer.on("stream", (stream) => {
+          // got remote video stream, now let's show it in a video tag
+          var video = document.querySelector("video");
+
+          if ("srcObject" in video) {
+             
+            video.srcObject = stream;
+          } else {
+            video.src = window.URL.createObjectURL(stream); // for older browsers
+          }
+          video.play()
+        });
+      });
+  };
+
+  console.log(id);
+
+  console.log(isAdmin);
+  return (
+    <div class="videoScreen">
+      <MeetingHeader setMessenger={setMessenger} />
+      <MeetingFooter />
+      {isAdmin && meetingInfoPopUp && (
+        <MeetingInfo url={url} setMeetingInfoPopUp={setMeetingInfoPopUp} />
+      )}
+      {isMessenger ? (
+        <Messenger setMessenger={setMessenger} messageList={messageList} />
+      ) : (
+        <Alert />
+      )}
+    </div>
+  );
 }
 
-export default VideoPage
+export default VideoPage;
