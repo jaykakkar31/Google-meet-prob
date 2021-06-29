@@ -19,9 +19,15 @@ function MeetingHeader({ setMessenger }) {
     console.log(currentTime);
    
   }, []);
+   const videoConstraints = {
+    height: window.innerHeight / 2,
+    width: window.innerWidth / 2,
+  };
   return (
     <div>
-      <video class="video-container" controls src=""></video>
+      <video class="video-container"   src=""></video>
+      {/* <video class="video-container" controls src=""></video> */}
+
       <div class="frame-header">
         <div class="header-items icon-block">
           <PeopleIcon />
