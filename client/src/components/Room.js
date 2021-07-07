@@ -1,58 +1,61 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import styled from "styled-components";
+import MeetingHeader from "./meetingHeader";
+import MeetingFooter from "./meetingFooter";
+import MeetingInfo from "./meetingInfo";
+import Alert from "./alert";
+import Messenger from "./messenger";
 
-// const Container = styled.div`
-// 	display: flex;
-// 	align-items: center;
-// 	height: calc(100vh - 90px);
-// 	width: 100vw;
-// 	flex-wrap: wrap;
-// 	justify-content: center;
-// `;
-// const StyledVideo = styled.video`
-// 	height: 50%;
-// 	width: 50%;
-// `;
 const vidStyle = {
-	height: "50%",
-	width: "50%",
-    // borderRadius:"10px"
+	height: `264.15px`,
+	width: "639.9px",
+	padding: "10px",
+	paddingBottom: "5px",
+	objectFit: "fill",
 };
 
 const Video = (props) => {
 	const ref = useRef();
-
+	console.log("VIDEO CALLED");
 	useEffect(() => {
-		console.log(props.peer);
 		props.peer.on("stream", (stream) => {
 			console.log("ENTE0RD" + stream);
 			ref.current.srcObject = stream;
-		});
+		})
 	}, []);
 
-	return <video  style={vidStyle} autoPlay ref={ref} />;
+
+	return <video style={vidStyle} muted ref={ref} autoPlay controls />;
 };
+
+let peer = null;
 
 const videoConstraints = {
 	height: window.innerHeight / 2,
 	width: window.innerWidth / 2,
 };
 
-const Room = (props) => {
-    const numUsers=useRef()
+const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
+	const [isMessenger, setMessenger] = useState(false);
+
+	const numUsers = useRef();
 	const [peers, setPeers] = useState([]);
 	const socketRef = useRef();
 	const userVideo = useRef();
 	const peersRef = useRef([]);
-	const roomID = props.id;
+	const screenStream = useRef();
+	const roomID = id;
+	const [streamObj, setStreamObj] = useState();
+	const [screenCastStream, setScreenCastStream] = useState();
+	const [isPresenting, setIsPresenting] = useState();
 
 	useEffect(() => {
 		socketRef.current = io.connect("http://localhost:9000");
 		navigator.mediaDevices
 			.getUserMedia({ video: videoConstraints, audio: true })
 			.then((stream) => {
+				setStreamObj(stream);
 				userVideo.current.srcObject = stream;
 				console.log("USERVIDEO" + stream);
 				// LOGIC THAT USER HAS JOINED THE ROOM
@@ -62,48 +65,50 @@ const Room = (props) => {
 				socketRef.current.emit("JOINED ROOM");
 				socketRef.current.emit("join room", roomID);
 				// Recieve users from backened
-				if (!props.isAdmin) {
-					socketRef.current.on("all users", (users) => {
-						//peers is for how many videos are rendering
-						console.log(users.length);
-                        numUsers.current=users.length+1
-						const peersForVideo = [];
-						users.forEach((userID) => {
-							console.log(userID + " USER ID OF USER IN THE ROOM ");
-							console.log(socketRef.current);
-							//socketRef.current.id is the of user currently joined
-							// UserID  id's of all those inside the meeting
+				// if (!props.isAdmin) {
 
-							const peer = createPeer(userID, socketRef.current.id, stream);
-							//peersRef is for which is having connection with which
-							peersRef.current.push({
-								peerID: userID,
-								peer,
-							});
+				socketRef.current.on("all users", (users) => {
+					//peers is for how many videos are rendering
 
-							peersForVideo.push(peer);
-						});
-						setPeers(peersForVideo);
-						console.log(peers);
-					});
-					//PERSON IN THE ROOM GETS NOTIFIED THAT SOMEBODY HAS JOINED
-					//.on means recieving from backend
-					socketRef.current.on("user joined", (payload) => {
-						const peer = addPeer(payload.signal, payload.callerID, stream);
+					const peersForVideo = [];
+					users.forEach((userID) => {
+						console.log(userID + " USER ID OF USER IN THE ROOM ");
+						console.log(socketRef.current);
+						//socketRef.current.id is the of user currently joined
+						// UserID  id's of all those inside the meeting
 
+						const peer = createPeer(userID, socketRef.current.id, stream);
+						//peersRef is for which is having connection with which
 						peersRef.current.push({
-							peerID: payload.callerID,
+							peerID: userID,
 							peer,
 						});
-						setPeers((users) => [...users, peer]);
+
+						peersForVideo.push(peer);
 					});
-					socketRef.current.on("receiving returned signal", (payload) => {
-						// signal has been send to multiple now multiple users are sending back the signal to caller
-						const item = peersRef.current.find((p) => p.peerID === payload.id);
-						console.log(item);
-						item.peer.signal(payload.signal);
+					setPeers(peersForVideo);
+					console.log(peers);
+				});
+				//PERSON IN THE ROOM GETS NOTIFIED THAT SOMEBODY HAS JOINED
+				//.on means recieving from backend
+				socketRef.current.on("user joined", (payload) => {
+					const peer = addPeer(payload.signal, payload.callerID, stream);
+
+					peersRef.current.push({
+						peerID: payload.callerID,
+						peer,
 					});
-				}
+
+					setPeers((users) => [...users, peer]);
+				});
+				socketRef.current.on("receiving returned signal", (payload) => {
+					// signal has been send to multiple now multiple users are sending back the signal to caller
+					const item = peersRef.current.find((p) => p.peerID === payload.id);
+					console.log(item);
+
+					item.peer.signal(payload.signal);
+				});
+				// }
 			});
 	}, []);
 
@@ -143,13 +148,73 @@ const Room = (props) => {
 		return peer;
 	}
 
-	// console.log("PEERS " + JSON.stringify(peers));
+	const screenShare = () => {
+		console.log(peer);
+		navigator.mediaDevices
+			.getDisplayMedia()
+			.then((screenStream) => {
+				console.log("SCREEN STREAM", screenStream);
+				peers.map((peer, index) => {
+					peer.replaceTrack(
+						streamObj.getVideoTracks()[0],
+						screenStream.getVideoTracks()[0],
+						streamObj
+					);
+
+					//WHEN SHARING STOPS RETURN TO NORMAl STATE
+                    //RESPONSIBLE FOR WORKING OF STOP BUTTON
+					setScreenCastStream(screenStream);
+					// screenStream.getTracks()[0].onended = () => {
+					// 	peer.replaceTrack(
+					// 		screenStream.getVideoTracks()[0],
+					// 		streamObj.getVideoTracks()[0],
+					// 		streamObj
+					// 	);
+					// };
+					setIsPresenting(true);
+				});
+			});
+	};
+	const stopScreenShare = () => {
+		// screenCastStream.getVideoTracks().forEach(function (track) {
+		// 	track.stop();
+		// });
+        // Replace with video tracks
+		peers.map((peer, index) => {
+			peer.replaceTrack(
+				screenCastStream.getVideoTracks()[0],
+				streamObj.getVideoTracks()[0],
+				streamObj
+			);
+			setIsPresenting(false);
+		});
+	};
+
+	console.log(peers.callerID);
 	return (
-		<div className="container">
-			<video style={vidStyle} muted ref={userVideo} autoPlay />
-			{peers.map((peer, index) => {
-				return <Video key={index} peer={peer} />;
-			})}
+		<div class="videoScreen">
+			{/* {isPresenting ? (
+				<video
+					// style={{ height: "calc(100vh -90px)", width: "100%" }}
+				/>
+			) : ( */}
+			<div className="container">
+				<video style={vidStyle} muted ref={userVideo} autoPlay controls />
+				{peers.map((peer, index) => {
+					return <Video key={index} peer={peer} numUsers={numUsers.current} />;
+				})}
+			</div>
+			{/* )} */}
+			<MeetingHeader setMessenger={setMessenger} id={id} />
+			<MeetingFooter
+				isPresenting={isPresenting}
+				screenShare={screenShare}
+				stopScreenShare={stopScreenShare}
+			/>
+			{isAdmin && meetingInfoPopUp && (
+				<MeetingInfo url={url} setMeetingInfoPopUp={setMeetingInfoPopUp} />
+			)}
+			{isMessenger ? <Messenger setMessenger={setMessenger} /> : <Alert />}
 		</div>
 	);
 };
