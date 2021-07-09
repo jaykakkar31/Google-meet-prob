@@ -51,7 +51,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const [isPresenting, setIsPresenting] = useState();
 
 	useEffect(() => {
-		socketRef.current = io.connect("http://localhost:9000");
+		socketRef.current = io.connect("/");
 		navigator.mediaDevices
 			.getUserMedia({ video: videoConstraints, audio: true })
 			.then((stream) => {
