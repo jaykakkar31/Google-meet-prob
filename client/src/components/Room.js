@@ -151,7 +151,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const screenShare = () => {
 		console.log(peer);
 		navigator.mediaDevices
-			.getDisplayMedia()
+			.getDisplayMedia({cursor:true})
 			.then((screenStream) => {
 				console.log("SCREEN STREAM", screenStream);
 				peers.map((peer, index) => {
