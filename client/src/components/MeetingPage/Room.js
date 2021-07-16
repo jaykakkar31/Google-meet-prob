@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useReducer } from "react";
+import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import MeetingHeader from "./meetingHeader";
 import MeetingFooter from "./meetingFooter";
 import MeetingInfo from "./meetingInfo";
-import Alert from "./alert";
+import Alert from "../alert";
 import Messenger from "./messenger";
+import { Player, ControlBar, PlayToggle } from "video-react";
+import moment from "moment";
 
 const vidStyle = {
 	height: `264.15px`,
@@ -17,47 +20,68 @@ const vidStyle = {
 
 const Video = (props) => {
 	const ref = useRef();
-	console.log("VIDEO CALLED");
+	console.log("VIDEO CALLED" + JSON.stringify(props.peer));
 	useEffect(() => {
 		props.peer.on("stream", (stream) => {
 			console.log("ENTE0RD" + stream);
 			ref.current.srcObject = stream;
-		})
+		});
 	}, []);
 
-
-	return <video style={vidStyle} muted ref={ref} autoPlay controls />;
+	return (
+		<video
+			style={vidStyle}
+			muted={!props.isAudio}
+			ref={ref}
+			autoPlay
+			controls
+		/>
+	);
 };
 
-let peer = null;
 
-const videoConstraints = {
-	height: window.innerHeight / 2,
-	width: window.innerWidth / 2,
+const MessageListReducer = (state, action) => {
+	let draftState = [...state];
+    console.log(state);
+	switch (action.type) {
+		case "addMessage":
+			console.log(action);
+			return [...draftState, action.payload];
+		default:
+			return state;
+	}
 };
 
 const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const [isMessenger, setMessenger] = useState(false);
 
 	const numUsers = useRef();
+	let history = useHistory();
 	const [peers, setPeers] = useState([]);
 	const socketRef = useRef();
 	const userVideo = useRef();
 	const peersRef = useRef([]);
 	const screenStream = useRef();
 	const roomID = id;
+	const [isAudio, setIsAudio] = useState(false);
 	const [streamObj, setStreamObj] = useState();
 	const [screenCastStream, setScreenCastStream] = useState();
 	const [isPresenting, setIsPresenting] = useState();
+	const [isVideo, setIsVideo] = useState(true);
+	const initialState = [];
+	const [messageListState, messgListReducer] = useReducer(
+		MessageListReducer,
+		initialState
+	);
 
 	useEffect(() => {
 		socketRef.current = io.connect("/");
 		navigator.mediaDevices
-			.getUserMedia({ video: videoConstraints, audio: true })
+			.getUserMedia({ video: true, audio: true })
 			.then((stream) => {
 				setStreamObj(stream);
 				userVideo.current.srcObject = stream;
-				console.log("USERVIDEO" + stream);
+				console.log(userVideo.current);
 				// LOGIC THAT USER HAS JOINED THE ROOM
 
 				//THIS EVENT Is NOT CACHED AT BACKEND
@@ -86,7 +110,9 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 
 						peersForVideo.push(peer);
 					});
-					setPeers(peersForVideo);
+					if (peers.length <= 4) {
+						setPeers(peersForVideo);
+					}
 					console.log(peers);
 				});
 				//PERSON IN THE ROOM GETS NOTIFIED THAT SOMEBODY HAS JOINED
@@ -104,7 +130,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				socketRef.current.on("receiving returned signal", (payload) => {
 					// signal has been send to multiple now multiple users are sending back the signal to caller
 					const item = peersRef.current.find((p) => p.peerID === payload.id);
-					console.log(item);
+					// console.log(item);
 
 					item.peer.signal(payload.signal);
 				});
@@ -149,37 +175,46 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	}
 
 	const screenShare = () => {
-		console.log(peer);
 		navigator.mediaDevices
-			.getDisplayMedia({cursor:true})
+			//Cursor True is means sending cursor also of the person sharing screen to the person recieving the screen
+			.getDisplayMedia({ cursor: true })
 			.then((screenStream) => {
 				console.log("SCREEN STREAM", screenStream);
+				console.log(userVideo.current);
+
 				peers.map((peer, index) => {
+					console.log(peer);
 					peer.replaceTrack(
+						//0th track is the screen track
 						streamObj.getVideoTracks()[0],
 						screenStream.getVideoTracks()[0],
 						streamObj
 					);
-
-					//WHEN SHARING STOPS RETURN TO NORMAl STATE
-                    //RESPONSIBLE FOR WORKING OF STOP BUTTON
-					setScreenCastStream(screenStream);
-					// screenStream.getTracks()[0].onended = () => {
-					// 	peer.replaceTrack(
-					// 		screenStream.getVideoTracks()[0],
-					// 		streamObj.getVideoTracks()[0],
-					// 		streamObj
-					// 	);
-					// };
-					setIsPresenting(true);
 				});
+				setIsPresenting(true);
+
+				//WHEN SHARING STOPS RETURN TO NORMAl STATE
+				//RESPONSIBLE FOR WORKING OF STOP BUTTON
+				setScreenCastStream(screenStream);
+
+				screenStream.getTracks()[0].onended = () => {
+					peers.map((peer, index) => {
+						console.log("CALLED");
+						peer.replaceTrack(
+							screenStream.getVideoTracks()[0],
+							streamObj.getVideoTracks()[0],
+							streamObj
+						);
+					});
+					setIsPresenting(false);
+				};
 			});
 	};
 	const stopScreenShare = () => {
-		// screenCastStream.getVideoTracks().forEach(function (track) {
-		// 	track.stop();
-		// });
-        // Replace with video tracks
+		screenCastStream.getVideoTracks().forEach(function (track) {
+			track.stop();
+		});
+		// Replace with video tracks
 		peers.map((peer, index) => {
 			peer.replaceTrack(
 				screenCastStream.getVideoTracks()[0],
@@ -190,31 +225,103 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		});
 	};
 
-	console.log(peers.callerID);
+	const toggleVideo = (value) => {
+		if (value) {
+			userVideo.current.play();
+			navigator.mediaDevices
+				.getUserMedia({ video: true, audio: true })
+				.then((stream) => {
+					userVideo.current.srcObject = stream;
+				});
+		} else {
+			navigator.mediaDevices
+				.getUserMedia({ video: true, audio: true })
+				.then((stream) => {
+					userVideo.current.srcObject = stream.stop;
+				});
+			userVideo.current.pause();
+		}
+
+		setIsVideo(value);
+	};
+
+	const disconnect = () => {
+		console.log("Clicked");
+		socketRef.current.disconnect();
+		history.push("/");
+	};
+
+	// console.log(messgListReducer);
+
+	const sendMsg = (msg) => {
+		//Send From one peer to another
+
+		const formatDate = () => {
+			return moment().format("LT");
+		};
+		console.log(formatDate());
+		peers.map((peer) => {
+			peer.send(msg);
+			messgListReducer({
+				type: "addMessg",
+				payload: {
+					msg: msg,
+					user: socketRef.current.id,
+					time: formatDate(),
+				},
+			});
+			console.log(peer);
+		});
+		console.log();
+	};
+
+	const messageAlert = () => {};
+
 	return (
 		<div class="videoScreen">
-			{/* {isPresenting ? (
-				<video
-					// style={{ height: "calc(100vh -90px)", width: "100%" }}
-				/>
-			) : ( */}
 			<div className="container">
-				<video style={vidStyle} muted ref={userVideo} autoPlay controls />
+				<video
+					style={vidStyle}
+					muted={!isAudio}
+					ref={userVideo}
+					autoPlay
+					controls={isPresenting}
+				/>
 				{peers.map((peer, index) => {
-					return <Video key={index} peer={peer} numUsers={numUsers.current} />;
+					return (
+						<Video
+							key={index}
+							peer={peer}
+							numUsers={numUsers.current}
+							isAudio={isAudio}
+						/>
+					);
 				})}
 			</div>
-			{/* )} */}
 			<MeetingHeader setMessenger={setMessenger} id={id} />
+
 			<MeetingFooter
 				isPresenting={isPresenting}
 				screenShare={screenShare}
 				stopScreenShare={stopScreenShare}
+				disconnect={disconnect}
+				setIsAudio={setIsAudio}
+				isVideo={isVideo}
+				isAudio={isAudio}
+				toggleVideo={toggleVideo}
 			/>
 			{isAdmin && meetingInfoPopUp && (
 				<MeetingInfo url={url} setMeetingInfoPopUp={setMeetingInfoPopUp} />
 			)}
-			{isMessenger ? <Messenger setMessenger={setMessenger} /> : <Alert />}
+			{isMessenger ? (
+				<Messenger
+					setMessenger={setMessenger}
+					sendMsg={sendMsg}
+					messageListState={messageListState}
+				/>
+			) : (
+				<Alert messageAlert={messageAlert} />
+			)}
 		</div>
 	);
 };

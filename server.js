@@ -64,8 +64,9 @@ io.on("connection", (socket) => {
 	});
 
 	 socket.on("disconnect", () => {
-			console.log("called");
+			console.log("called")
 			const roomID = socketToRoom[socket.id];
+            console.log(socketToRoom[socket.id]);
 			let room = users[roomID];
 			if (room) {
 				room = room.filter((id) => id !== socket.id);

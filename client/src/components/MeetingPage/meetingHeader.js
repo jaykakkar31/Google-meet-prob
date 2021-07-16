@@ -31,47 +31,22 @@ function MeetingHeader({ setMessenger, id, isAdmin, peers, userVideo }) {
 		paddingBottom: "5px",
 	};
 
-	// const Video = (props) => {
-	// 	const ref = useRef();
+	
 
-	// 	console.log("VIDEO CALLED");
-	// 	useEffect(() => {
-	// 		console.log(props.peer);
-	// 		props.peer.on("stream", (stream) => {
-	// 			console.log("ENTE0RD" + stream);
-	// 			ref.current.srcObject = stream;
-	// 		});
-	// 	}, []);
-	// 	console.log(ref);
-	// 	return <video style={vidStyle} autoPlay ref={ref} />;
-	// };
-
-	const Room = () => {
-		console.log("ROOM CALLED");
-		return (
-			<div className="container">
-				{console.log(userVideo)}
-				<video style={vidStyle} muted ref={userVideo} autoPlay />
-				{peers.map((peer, index) => {
-					return <video key={index} peer={peer} />;
-				})}
-			</div>
-		);
-	};
 
 	return (
 		<div>
-			{/* <Room /> */}
 
 			<div class="frame-header">
 				<div class="header-items icon-block">
 					<PeopleIcon />
 				</div>
 				<div
-					class="header-items icon-block"
+					class="header-items "
 					onClick={() => {
 						setMessenger(true);
 					}}
+                    
 				>
 					<ChatBubbleIcon />
 				</div>

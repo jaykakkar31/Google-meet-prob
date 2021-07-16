@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import KeyboardIcon from "@material-ui/icons/Keyboard";
 import VideocamIcon from "@material-ui/icons/Videocam";
@@ -6,6 +6,9 @@ const shortid = require("shortid");
 function BodyContent() {
 
   const history=useHistory()
+  const [backPressed,setBackPressed]=useState(false)
+
+  
 
   const startMeeting=()=>{
     const meetingId=shortid.generate()

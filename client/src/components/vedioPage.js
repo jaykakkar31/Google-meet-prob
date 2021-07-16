@@ -1,9 +1,6 @@
-import react, {
-	useState,
-	useEffect,
-} from "react";
+import react, { useState, useEffect } from "react";
 
-import Room from "./Room";
+import Room from "./MeetingPage/Room";
 import { useParams, useHistory } from "react-router-dom";
 
 function VideoPage() {
@@ -12,6 +9,18 @@ function VideoPage() {
 	const url = `${window.location.origin}${window.location.pathname}`;
 
 	const [meetingInfoPopUp, setMeetingInfoPopUp] = useState(false);
+
+	const history = useHistory();
+
+	// useEffect(() => {
+
+	// window.onpopstate = (event, ev) => {
+	// console.log("CALED OnPOP");
+	// console.log(history.action);
+	// };
+	// }, []);
+
+	// console.log(window.location);
 
 	useEffect(() => {
 		if (isAdmin) {

@@ -5,8 +5,20 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import MicIcon from "@material-ui/icons/Mic";
 import PhoneEnabledIcon from "@material-ui/icons/PhoneEnabled";
 import VideocamIcon from "@material-ui/icons/Videocam";
+import MicOffIcon from "@material-ui/icons/MicOff";
+import VideocamOffIcon from "@material-ui/icons/VideocamOff";
 
-function MeetingFooter({ screenShare, isPresenting, stopScreenShare }) {
+function MeetingFooter({
+	screenShare,
+	isPresenting,
+	stopScreenShare,
+	toggleAudio,
+	isAudio,
+	disconnect,
+	isVideo,
+	setIsAudio,
+	toggleVideo,
+}) {
 	return (
 		<div className="footer-item">
 			<div className="left-item">
@@ -16,14 +28,29 @@ function MeetingFooter({ screenShare, isPresenting, stopScreenShare }) {
 				</div>
 			</div>
 			<div className="center-item">
-				<div className="icon-block mic">
-					<MicIcon />
+				<div
+					className={`icon-block mic ${!isAudio ? "red-btn" : null}`}
+					onClick={() => {
+						setIsAudio(!isAudio);
+					}}
+				>
+					{isAudio ? <MicIcon /> : <MicOffIcon />}
 				</div>
-				<div className="icon-block phone">
+				<div
+					className="icon-block phone"
+					onClick={() => {
+						disconnect();
+					}}
+				>
 					<PhoneEnabledIcon />
 				</div>
-				<div className="icon-block video">
-					<VideocamIcon />
+				<div
+					className={`icon-block video ${!isVideo ? "red-btn" : null}`}
+					onClick={() => {
+						toggleVideo(!isVideo);
+					}}
+				>
+					{isVideo ? <VideocamIcon /> : <VideocamOffIcon />}
 				</div>
 			</div>
 			<div className="right-item">
