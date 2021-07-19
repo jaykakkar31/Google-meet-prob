@@ -5,7 +5,7 @@ import Peer from "simple-peer";
 import MeetingHeader from "./meetingHeader";
 import MeetingFooter from "./meetingFooter";
 import MeetingInfo from "./meetingInfo";
-import Alert from "../alert";
+import Alert from "./alert";
 import Messenger from "./messenger";
 import { Player, ControlBar, PlayToggle } from "video-react";
 import moment from "moment";
@@ -20,7 +20,7 @@ const vidStyle = {
 
 const Video = (props) => {
 	const ref = useRef();
-	console.log("VIDEO CALLED" + JSON.stringify(props.peer));
+	// console.log("VIDEO CALLED" + JSON.stringify(props.peer));
 	useEffect(() => {
 		props.peer.on("stream", (stream) => {
 			console.log("ENTE0RD" + stream);
@@ -39,14 +39,11 @@ const Video = (props) => {
 	);
 };
 
-
 const MessageListReducer = (state, action) => {
-	let draftState = [...state];
-    console.log(state);
+	// let draftState = [...state];
 	switch (action.type) {
 		case "addMessage":
-			console.log(action);
-			return [...draftState, action.payload];
+			return [...state, action.payload];
 		default:
 			return state;
 	}
@@ -61,6 +58,8 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const socketRef = useRef();
 	const userVideo = useRef();
 	const peersRef = useRef([]);
+	const currentPeer = useRef();
+	const adminPeer = useRef();
 	const screenStream = useRef();
 	const roomID = id;
 	const [isAudio, setIsAudio] = useState(false);
@@ -73,6 +72,14 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		MessageListReducer,
 		initialState
 	);
+	const [messageList, setMessageList] = useState([]);
+	const [messageAlert, setMessageAlert] = useState({});
+	const [userMessage, setUserMessage] = useState({});
+	let alertTimeout = null;
+
+	const formatDate = () => {
+		return moment().format("LT");
+	};
 
 	useEffect(() => {
 		socketRef.current = io.connect("/");
@@ -81,7 +88,9 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 			.then((stream) => {
 				setStreamObj(stream);
 				userVideo.current.srcObject = stream;
+
 				console.log(userVideo.current);
+
 				// LOGIC THAT USER HAS JOINED THE ROOM
 
 				//THIS EVENT Is NOT CACHED AT BACKEND
@@ -93,7 +102,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 
 				socketRef.current.on("all users", (users) => {
 					//peers is for how many videos are rendering
-
+					console.log(users);
 					const peersForVideo = [];
 					users.forEach((userID) => {
 						console.log(userID + " USER ID OF USER IN THE ROOM ");
@@ -113,7 +122,6 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 					if (peers.length <= 4) {
 						setPeers(peersForVideo);
 					}
-					console.log(peers);
 				});
 				//PERSON IN THE ROOM GETS NOTIFIED THAT SOMEBODY HAS JOINED
 				//.on means recieving from backend
@@ -130,9 +138,11 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				socketRef.current.on("receiving returned signal", (payload) => {
 					// signal has been send to multiple now multiple users are sending back the signal to caller
 					const item = peersRef.current.find((p) => p.peerID === payload.id);
-					// console.log(item);
+					console.log(item);
 
 					item.peer.signal(payload.signal);
+					// currentPeer.current = item.peer;
+					// returningSignal()
 				});
 				// }
 			});
@@ -146,8 +156,11 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 			trickle: false,
 			stream,
 		});
+		currentPeer.current = peer;
+
 		//generates signal
 		//sending to backend
+		console.log(userToSignal + "  " + callerID);
 		peer.on("signal", (signal) => {
 			socketRef.current.emit("sending signal", {
 				userToSignal,
@@ -155,6 +168,36 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				signal,
 			});
 		});
+		// peer.on("data", (data) => {
+		// 	console.log(data + "DATA");
+		// 	clearTimeout(alertTimeout);
+		// 	messgListReducer({
+		// 		type: "addMessage",
+		// 		payload: {
+		// 			user: userToSignal,
+		// 			msg: data.toString(),
+		// 			time: formatDate(),
+		// 		},
+		// 	});
+		// 	setMessageAlert({
+		// 		alert: true,
+		// 		isPopup: true,
+		// 		payload: {
+		// 			user: userToSignal,
+		// 			msg: data.toString(),
+		// 		},
+		// 	});
+
+		// 	alertTimeout = setTimeout(() => {
+		// 		setMessageAlert({
+		// 			...messageAlert,
+		// 			isPopup: false,
+		// 			payload: {},
+		// 		});
+		// 	}, 100000);
+		// });
+		// console.log(formatDate());
+
 		return peer;
 	}
 
@@ -165,12 +208,43 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 			trickle: false,
 			stream,
 		});
+		adminPeer.current = peer;
 		// 1 accepting the incoming signal that this will return the signal
 		peer.signal(incomingSignal);
 
 		peer.on("signal", (signal) => {
 			socketRef.current.emit("returning signal", { signal, callerID });
 		});
+
+		// peer.on("data", (data) => {
+		// 	console.log(data + "ADD DATA");
+		// 	clearTimeout(alertTimeout);
+		// 	messgListReducer({
+		// 		type: "addMessage",
+		// 		payload: {
+		// 			user: callerID,
+		// 			msg: data.toString(),
+		// 			time: formatDate(),
+		// 		},
+		// 	});
+
+		// 	setMessageAlert({
+		// 		alert: true,
+		// 		isPopup: true,
+		// 		payload: {
+		// 			user: callerID,
+		// 			msg: data.toString(),
+		// 		},
+		// 	});
+
+		// 	alertTimeout = setTimeout(() => {
+		// 		setMessageAlert({
+		// 			...messageAlert,
+		// 			isPopup: false,
+		// 			payload: {},
+		// 		});
+		// 	}, 100000);
+		// });
 		return peer;
 	}
 
@@ -239,7 +313,6 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				.then((stream) => {
 					userVideo.current.srcObject = stream.stop;
 				});
-			userVideo.current.pause();
 		}
 
 		setIsVideo(value);
@@ -256,27 +329,59 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const sendMsg = (msg) => {
 		//Send From one peer to another
 
-		const formatDate = () => {
-			return moment().format("LT");
-		};
-		console.log(formatDate());
-		peers.map((peer) => {
-			peer.send(msg);
-			messgListReducer({
-				type: "addMessg",
+		if (currentPeer.current) {
+			currentPeer.current.send(msg);
+		}
+		if (adminPeer.current) {
+			adminPeer.current.send(msg);
+		}
+
+		socketRef.current.emit("chatMessages", {
+			// payload: {
+			msg: msg,
+			user: socketRef.current.id,
+			time: formatDate(),
+			// },
+		});
+
+		setUserMessage({
+			msg: msg,
+			user: socketRef.current.id,
+			time: formatDate(),
+		});
+		messgListReducer({
+			type: "addMessage",
+			payload: {
+				msg: msg,
+				user: socketRef.current.id,
+				time: formatDate(),
+			},
+		});
+	};
+	useEffect(() => {
+		socketRef.current.on("allMessages", (payload) => {
+			console.log(payload);
+			setMessageList((prevVal) => [...prevVal, payload]);
+			setMessageAlert({
+				alert: true,
+				isPopup: true,
 				payload: {
-					msg: msg,
-					user: socketRef.current.id,
-					time: formatDate(),
+					user: payload.user,
+					msg: payload.msg,
 				},
 			});
-			console.log(peer);
+			// setMessageList(payload)
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			alertTimeout = setTimeout(() => {
+				setMessageAlert({
+					...messageAlert,
+					isPopup: false,
+					payload: {},
+				});
+			}, 100000);
 		});
-		console.log();
-	};
-
-	const messageAlert = () => {};
-
+	}, []);
+	console.log(messageList);
 	return (
 		<div class="videoScreen">
 			<div className="container">
@@ -298,7 +403,12 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 					);
 				})}
 			</div>
-			<MeetingHeader setMessenger={setMessenger} id={id} />
+			<MeetingHeader
+				setMessenger={setMessenger}
+				id={id}
+				setMessageAlert={setMessageAlert}
+				messageAlert={messageAlert}
+			/>
 
 			<MeetingFooter
 				isPresenting={isPresenting}
@@ -318,9 +428,11 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 					setMessenger={setMessenger}
 					sendMsg={sendMsg}
 					messageListState={messageListState}
+					messageList={messageList}
+                    userMessage={userMessage}
 				/>
 			) : (
-				<Alert messageAlert={messageAlert} />
+				messageAlert.isPopup && <Alert messageAlert={messageAlert} />
 			)}
 		</div>
 	);

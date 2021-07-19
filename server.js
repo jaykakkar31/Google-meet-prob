@@ -4,23 +4,24 @@ const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
 // const mongoose = require("mongoose");
-const io = require("socket.io")(server)
+const io = require("socket.io")(server);
 
 const port = 9000;
 
 const users = {};
-
+const totalUsers=[]
 const socketToRoom = {};
-
+let roomid;
+// const chatMessages=[]
 
 io.on("connection", (socket) => {
 	console.log("connected");
 	socket.on("join room", (roomID) => {
 		console.log(roomID + "  ROOM ID");
-
+        roomid=roomID
 		if (users[roomID]) {
 			const length = users[roomID].length;
-            console.log(length);
+			console.log(length);
 			if (length === 4) {
 				socket.emit("room full");
 				console.log("ROOM IS FULL");
@@ -63,20 +64,24 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	 socket.on("disconnect", () => {
-			console.log("called")
-			const roomID = socketToRoom[socket.id];
-            console.log(socketToRoom[socket.id]);
-			let room = users[roomID];
-			if (room) {
-				room = room.filter((id) => id !== socket.id);
-				users[roomID] = room;
-			}
-		});
+    socket.on("chatMessages",(payload)=>{
+        console.log("payload  "+JSON.stringify(payload))
+        // chatMessages.push(payload)
+        console.log(users[roomid]);
+        socket.broadcast.to(users[roomid]).emit("allMessages", payload);
+        
+    });
+
+	socket.on("disconnect", () => {
+		console.log("called");
+		const roomID = socketToRoom[socket.id];
+		let room = users[roomID];
+		if (room) {
+			room = room.filter((id) => id !== socket.id);
+			users[roomID] = room;
+		}
+	});
 });
-
-
-
 
 server.listen(port, () => {
 	console.log(`Server listen http://localhost:${port}`);

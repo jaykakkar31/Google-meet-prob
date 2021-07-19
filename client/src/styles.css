@@ -261,7 +261,6 @@ p {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-
 .container::-webkit-scrollbar {
 	display: none;
 }
@@ -303,6 +302,17 @@ p {
 	flex: 1 1;
 	border-right: 1px solid whitesmoke;
 	position: relative;
+}
+
+.frame-header .header-items .alert-icon{
+    position: absolute;
+    background: #04796a;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    top: 10px;
+    right: 25px;
 }
 
 .frmae-header .header-items.date-block {
@@ -579,6 +589,9 @@ p {
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #eee;
 }
+.messenger-input .MuiSvgIcon-root:hover{
+    color: #04796a;
+}
 .messenger-input input {
 	border: none;
 	outline: none;
@@ -597,6 +610,18 @@ p {
 	display: flex;
 	flex: 1;
 	overflow-y: scroll;
+	padding: 20px;
+	flex-direction: column;
+}
+.messenger-chat-area .details {
+	font-weight: 500;
+	font-size: 14px;
+}
+.messenger-chat-area .details small{
+    margin-left: 8px;
+}
+.messenger-chat-area p {
+	margin: 0;
 }
 
 /* Message Alert */

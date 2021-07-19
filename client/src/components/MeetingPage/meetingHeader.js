@@ -8,7 +8,7 @@ import moment from "moment";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 
-function MeetingHeader({ setMessenger, id, isAdmin, peers, userVideo }) {
+function MeetingHeader({ setMessenger, setMessageAlert,messageAlert }) {
 	const formatDate = () => {
 		return moment().format("LT");
 	};
@@ -31,12 +31,8 @@ function MeetingHeader({ setMessenger, id, isAdmin, peers, userVideo }) {
 		paddingBottom: "5px",
 	};
 
-	
-
-
 	return (
 		<div>
-
 			<div class="frame-header">
 				<div class="header-items icon-block">
 					<PeopleIcon />
@@ -45,10 +41,16 @@ function MeetingHeader({ setMessenger, id, isAdmin, peers, userVideo }) {
 					class="header-items "
 					onClick={() => {
 						setMessenger(true);
+						setMessageAlert({
+							alert: false,
+							isPopup: false,
+							payload: {},
+						});
 					}}
-                    
 				>
 					<ChatBubbleIcon />
+
+				{messageAlert.alert &&	<span className="alert-icon"></span>}
 				</div>
 				<div class="header-items date-block">{currentTime}</div>
 				<div class="header-items icon-block">
