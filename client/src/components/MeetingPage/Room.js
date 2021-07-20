@@ -7,7 +7,7 @@ import MeetingFooter from "./meetingFooter";
 import MeetingInfo from "./meetingInfo";
 import Alert from "./alert";
 import Messenger from "./messenger";
-import { Player, ControlBar, PlayToggle } from "video-react";
+
 import moment from "moment";
 
 const vidStyle = {
