@@ -6,7 +6,7 @@ const server = require("http").createServer(app);
 // const mongoose = require("mongoose");
 const io = require("socket.io")(server);
 
-const port = 9000;
+const port = 9000||process.env.PORT;
 
 const users = {};
 const totalUsers = [];
@@ -96,6 +96,17 @@ io.on("connection", (socket) => {
 		}
 	});
 });
+
+
+if (process.env.NODE_ENV === "production") {
+	const path = require("path");
+	app.use(express.static(path.join(__dirname, "client/build")));
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "client/build", "index.html"));
+	});
+}
+
 
 server.listen(port, () => {
 	console.log(`Server listen http://localhost:${port}`);
