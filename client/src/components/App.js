@@ -8,9 +8,7 @@ import VideoPage from "./vedioPage";
 import {
 	BrowserRouter as Router,
 	Switch,
-	Redirect,
 	Route,
-	useHistory,
 } from "react-router-dom";
 function App() {
 	

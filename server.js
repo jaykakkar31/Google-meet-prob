@@ -6,7 +6,10 @@ const server = require("http").createServer(app);
 // const mongoose = require("mongoose");
 const io = require("socket.io")(server);
 
-const port = 9000||process.env.PORT;
+const port = process.env.PORT || 9000;
+let cors = require("cors");
+
+app.use(cors());
 
 const users = {};
 const totalUsers = [];
@@ -109,5 +112,5 @@ if (process.env.NODE_ENV === "production") {
 
 
 server.listen(port, () => {
-	console.log(`Server listen http://localhost:${port}`);
+	console.log(`server listens at http://localhost:${port}`);
 });
