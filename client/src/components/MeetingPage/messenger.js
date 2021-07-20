@@ -5,10 +5,15 @@ import ChatBubbleIcon from "@material-ui/icons/ChatBubble";
 import TelegramIcon from "@material-ui/icons/Telegram";
 import { handleRateChange } from "video-react/lib/actions/video";
 
-function Messenger({ setMessenger, sendMsg, messageListState, messageList ,userMessage}) {
+function Messenger({
+	setMessenger,
+	sendMsg,
+	messageListState,
+	messageList,
+	userMessage,
+}) {
 	const [msg, setMsg] = useState("");
-		console.log(messageList);
-	
+	console.log(userMessage);
 
 	const handleChange = (event) => {
 		console.log(event.target.value);
@@ -38,18 +43,23 @@ function Messenger({ setMessenger, sendMsg, messageListState, messageList ,userM
 				</div>
 			</div>
 			<div className="messenger-chat-area">
-				<div>
-					<div className="details">
-						<span>{userMessage.user}</span>
-						<small>{userMessage.time}</small>
-					</div>
-					<p>{userMessage.msg}</p>
-				</div>
+				{/* {userMessage!==null&&userMessage.map((user) => {
+                    console.log(user)
+					return (
+						<div>
+							<div className="details">
+								<span>{user.user}</span>
+								<small>{user.time}</small>
+							</div>
+							<p>{user.msg}</p>
+						</div>
+					);
+				})} */}
 
 				{messageList.map((msg) => {
 					console.log(msg);
 					return (
-						<div>
+						<div className="usermessage">
 							<div className="details">
 								<span>{msg.user}</span>
 								<small>{msg.time}</small>

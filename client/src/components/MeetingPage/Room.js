@@ -72,9 +72,10 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		MessageListReducer,
 		initialState
 	);
+	// const messageList=useRef()
 	const [messageList, setMessageList] = useState([]);
 	const [messageAlert, setMessageAlert] = useState({});
-	const [userMessage, setUserMessage] = useState({});
+	const [prevMessage, setPrevMessage] = useState();
 	let alertTimeout = null;
 
 	const formatDate = () => {
@@ -335,20 +336,17 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		if (adminPeer.current) {
 			adminPeer.current.send(msg);
 		}
+        socketRef.current.emit("prevMessage",prevMessage)
 
 		socketRef.current.emit("chatMessages", {
-			// payload: {
+			
 			msg: msg,
 			user: socketRef.current.id,
 			time: formatDate(),
-			// },
+			
 		});
 
-		setUserMessage({
-			msg: msg,
-			user: socketRef.current.id,
-			time: formatDate(),
-		});
+		
 		messgListReducer({
 			type: "addMessage",
 			payload: {
@@ -360,17 +358,19 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	};
 	useEffect(() => {
 		socketRef.current.on("allMessages", (payload) => {
-			console.log(payload);
-			setMessageList((prevVal) => [...prevVal, payload]);
+			console.log(payload.chatMessages);
+			setPrevMessage(payload.chatMessages);
+			setMessageList(payload.chatMessages);
+
 			setMessageAlert({
 				alert: true,
 				isPopup: true,
 				payload: {
-					user: payload.user,
-					msg: payload.msg,
+					user: payload.payload.user,
+					msg: payload.payload.msg,
 				},
 			});
-			// setMessageList(payload)
+
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			alertTimeout = setTimeout(() => {
 				setMessageAlert({
@@ -380,8 +380,12 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				});
 			}, 100000);
 		});
+
+		socketRef.current.on("currentUserMessages", (payload) => {
+			setMessageList(payload.chatMessages);
+			setPrevMessage(payload.chatMessages);
+		});
 	}, []);
-	console.log(messageList);
 	return (
 		<div class="videoScreen">
 			<div className="container">
@@ -427,9 +431,9 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				<Messenger
 					setMessenger={setMessenger}
 					sendMsg={sendMsg}
-					messageListState={messageListState}
+					// messageListState={messageListState}
 					messageList={messageList}
-                    userMessage={userMessage}
+					// userMessage={userMessage}
 				/>
 			) : (
 				messageAlert.isPopup && <Alert messageAlert={messageAlert} />

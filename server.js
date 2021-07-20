@@ -9,16 +9,16 @@ const io = require("socket.io")(server);
 const port = 9000;
 
 const users = {};
-const totalUsers=[]
+const totalUsers = [];
 const socketToRoom = {};
 let roomid;
-// const chatMessages=[]
+let chatMessages = [];
 
 io.on("connection", (socket) => {
 	console.log("connected");
 	socket.on("join room", (roomID) => {
 		console.log(roomID + "  ROOM ID");
-        roomid=roomID
+		roomid = roomID;
 		if (users[roomID]) {
 			const length = users[roomID].length;
 			console.log(length);
@@ -64,13 +64,27 @@ io.on("connection", (socket) => {
 		});
 	});
 
-    socket.on("chatMessages",(payload)=>{
-        console.log("payload  "+JSON.stringify(payload))
-        // chatMessages.push(payload)
-        console.log(users[roomid]);
-        socket.broadcast.to(users[roomid]).emit("allMessages", payload);
-        
-    });
+	socket.on("prevMessage", (payload) => {
+		console.log(JSON.stringify(payload) + "prevMeasseafe");
+		if (payload !== null) {
+			chatMessages = [...payload];
+		}
+	});
+
+	socket.on("chatMessages", (payload) => {
+		chatMessages.push(payload);
+		console.log(users[roomid]);
+		socket.broadcast
+			.to(users[roomid])
+			.emit("allMessages", { payload: payload, chatMessages: chatMessages });
+
+		
+		io.to(payload.user).emit("currentUserMessages", {
+			payload: payload,
+			chatMessages: chatMessages,
+		});
+		chatMessages = [];
+	});
 
 	socket.on("disconnect", () => {
 		console.log("called");
