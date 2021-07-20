@@ -10,6 +10,8 @@ const port = process.env.PORT || 9000;
 let cors = require("cors");
 
 app.use(cors());
+app.use(express.static("public"));
+
 
 const users = {};
 const totalUsers = [];
