@@ -39,15 +39,7 @@ const Video = (props) => {
 	);
 };
 
-const MessageListReducer = (state, action) => {
-	// let draftState = [...state];
-	switch (action.type) {
-		case "addMessage":
-			return [...state, action.payload];
-		default:
-			return state;
-	}
-};
+
 
 const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const [isMessenger, setMessenger] = useState(false);
@@ -67,11 +59,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 	const [screenCastStream, setScreenCastStream] = useState();
 	const [isPresenting, setIsPresenting] = useState();
 	const [isVideo, setIsVideo] = useState(true);
-	const initialState = [];
-	const [messageListState, messgListReducer] = useReducer(
-		MessageListReducer,
-		initialState
-	);
+	
 	// const messageList=useRef()
 	const [messageList, setMessageList] = useState([]);
 	const [messageAlert, setMessageAlert] = useState({});
@@ -169,35 +157,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 				signal,
 			});
 		});
-		// peer.on("data", (data) => {
-		// 	console.log(data + "DATA");
-		// 	clearTimeout(alertTimeout);
-		// 	messgListReducer({
-		// 		type: "addMessage",
-		// 		payload: {
-		// 			user: userToSignal,
-		// 			msg: data.toString(),
-		// 			time: formatDate(),
-		// 		},
-		// 	});
-		// 	setMessageAlert({
-		// 		alert: true,
-		// 		isPopup: true,
-		// 		payload: {
-		// 			user: userToSignal,
-		// 			msg: data.toString(),
-		// 		},
-		// 	});
-
-		// 	alertTimeout = setTimeout(() => {
-		// 		setMessageAlert({
-		// 			...messageAlert,
-		// 			isPopup: false,
-		// 			payload: {},
-		// 		});
-		// 	}, 100000);
-		// });
-		// console.log(formatDate());
+		
 
 		return peer;
 	}
@@ -217,35 +177,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 			socketRef.current.emit("returning signal", { signal, callerID });
 		});
 
-		// peer.on("data", (data) => {
-		// 	console.log(data + "ADD DATA");
-		// 	clearTimeout(alertTimeout);
-		// 	messgListReducer({
-		// 		type: "addMessage",
-		// 		payload: {
-		// 			user: callerID,
-		// 			msg: data.toString(),
-		// 			time: formatDate(),
-		// 		},
-		// 	});
-
-		// 	setMessageAlert({
-		// 		alert: true,
-		// 		isPopup: true,
-		// 		payload: {
-		// 			user: callerID,
-		// 			msg: data.toString(),
-		// 		},
-		// 	});
-
-		// 	alertTimeout = setTimeout(() => {
-		// 		setMessageAlert({
-		// 			...messageAlert,
-		// 			isPopup: false,
-		// 			payload: {},
-		// 		});
-		// 	}, 100000);
-		// });
+		
 		return peer;
 	}
 
@@ -325,7 +257,6 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		history.push("/");
 	};
 
-	// console.log(messgListReducer);
 
 	const sendMsg = (msg) => {
 		//Send From one peer to another
@@ -347,14 +278,7 @@ const Room = ({ id, isAdmin, setMeetingInfoPopUp, url, meetingInfoPopUp }) => {
 		});
 
 		
-		messgListReducer({
-			type: "addMessage",
-			payload: {
-				msg: msg,
-				user: socketRef.current.id,
-				time: formatDate(),
-			},
-		});
+		
 	};
 	useEffect(() => {
 		socketRef.current.on("allMessages", (payload) => {

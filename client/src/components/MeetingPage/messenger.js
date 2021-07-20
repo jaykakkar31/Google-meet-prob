@@ -1,9 +1,8 @@
-import react, { useEffect, useState } from "react";
+import  { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import PeopleIcon from "@material-ui/icons/People";
 import ChatBubbleIcon from "@material-ui/icons/ChatBubble";
 import TelegramIcon from "@material-ui/icons/Telegram";
-import { handleRateChange } from "video-react/lib/actions/video";
 
 function Messenger({
 	setMessenger,
